@@ -13,6 +13,7 @@ export default async function Home() {
 
   return (
     <main style={{ padding: 24 }}>
+      <h1>Hello World!!!</h1>
       <h1>{message}</h1>
       <p>Host: {host}</p>
     </main>
