@@ -2,30 +2,62 @@ name: Deploy Frontend
 
 on:
   push:
-    branches: ["main"]
+    branches: ["main", "prod"]
+
+env:
+  REGISTRY: docker.io
+  IMAGE_NAME: osmity/osmity-web-frontend
 
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
 
     steps:
+      # ---------------------------
+      # Checkout
+      # ---------------------------
       - name: Checkout repository
         uses: actions/checkout@v3
 
+      # ---------------------------
+      # Determine TAG & Deploy dir
+      # ---------------------------
+      - name: Set deployment variables
+        run: |
+          if [ "${GITHUB_REF##*/}" = "prod" ]; then
+            echo "TAG=prod" >> $GITHUB_ENV
+            echo "DEPLOY_DIR=prod" >> $GITHUB_ENV
+          else
+            echo "TAG=dev" >> $GITHUB_ENV
+            echo "DEPLOY_DIR=dev" >> $GITHUB_ENV
+          fi
+
+      # ---------------------------
+      # Login to Docker Hub
+      # ---------------------------
       - name: Login to Docker Hub
         uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
+      # ---------------------------
+      # Build image
+      # ---------------------------
       - name: Build Docker image
         run: |
-          docker build -t osmity/osmity-web-frontend:latest .
+          docker build -t $REGISTRY/$IMAGE_NAME:${TAG} .
 
+      # ---------------------------
+      # Push image
+      # ---------------------------
       - name: Push Docker image
         run: |
-          docker push osmity/osmity-web-frontend:latest
+          docker push $REGISTRY/$IMAGE_NAME:${TAG}
 
+      # ---------------------------
+      # Deploy via SSH
+      # ---------------------------
       - name: Deploy to server via SSH
         uses: appleboy/ssh-action@v1.0.3
         with:
@@ -33,7 +65,7 @@ jobs:
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_KEY }}
           script: |
-            cd ~/Osmity
+            cd ~/Osmity/${DEPLOY_DIR}/frontend
             docker compose pull
             docker compose up -d
             docker system prune -f
