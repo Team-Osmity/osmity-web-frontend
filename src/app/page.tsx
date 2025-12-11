@@ -1,18 +1,18 @@
+export const dynamic = "force-dynamic";
+// export const revalidate = 0;  // こちらでも可
+
 import { headers } from "next/headers";
 
 export default async function Home() {
   const h = await headers();
   const host = h.get("host") ?? "";
 
-  // ========== 環境変数の取得 ==========
   const appEnv = process.env.NEXT_PUBLIC_APP_ENV;
 
-  // 状態判定
   const isDev = appEnv === "dev";
   const isProd = appEnv === "prod";
   const isMissing = appEnv === undefined;
 
-  // ========== メッセージ（既存ロジック） ==========
   let message = "Hello from Local!";
   if (host.includes("osmity")) {
     message = "Hello Osmity!";
@@ -22,7 +22,6 @@ export default async function Home() {
 
   return (
     <main style={{ padding: 24 }}>
-      {/* ====== dev 環境バナー ====== */}
       {isDev && (
         <div style={{
           background: "red",
@@ -35,7 +34,6 @@ export default async function Home() {
         </div>
       )}
 
-      {/* ====== 読み込まれていない場合 ====== */}
       {isMissing && (
         <div style={{
           background: "orange",
