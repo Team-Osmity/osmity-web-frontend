@@ -17,7 +17,7 @@ jobs:
         uses: actions/checkout@v3
 
       # ---------------------------
-      # Set TAG & TARGET DIR
+      # Detect Branch → Set TAG & Deploy Dir
       # ---------------------------
       - name: Set deployment variables
         run: |
@@ -39,11 +39,14 @@ jobs:
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       # ---------------------------
-      # Build image
+      # Build image (IMPORTANT)
+      # NEXT_PUBLIC_APP_ENV is injected here!
       # ---------------------------
       - name: Build Docker image
         run: |
-          docker build -t $REGISTRY/$IMAGE_NAME:${TAG} .
+          docker build \
+            --build-arg NEXT_PUBLIC_APP_ENV=${TAG} \
+            -t $REGISTRY/$IMAGE_NAME:${TAG} .
 
       # ---------------------------
       # Push image
@@ -54,7 +57,6 @@ jobs:
 
       # ---------------------------
       # Deploy via SSH
-      # (Compose includes both frontend & backend)
       # ---------------------------
       - name: Deploy to server
         uses: appleboy/ssh-action@v1.0.3
