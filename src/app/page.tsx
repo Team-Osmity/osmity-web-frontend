@@ -48,7 +48,6 @@ export default async function Home() {
         </div>
       )}
 
-      <h1>Hello World!!!</h1>
       <h1>{message}</h1>
 
       <p>Host: {host}</p>
