@@ -58,7 +58,7 @@ jobs:
       # ---------------------------
       # Deploy via SSH
       # ---------------------------
-      - name: Deploy to server
+      - name: Deploy to server via SSH
         uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.SSH_HOST }}
@@ -66,10 +66,15 @@ jobs:
           key: ${{ secrets.SSH_KEY }}
           script: |
             bash -lc "
-              cd ~/Osmity/${DEPLOY_DIR} &&
+              echo '== SSH Connected =='
+              cd ~/Osmity/${{ env.DEPLOY_DIR }} &&
+              echo '== Current directory ==' &&
               pwd &&
               ls -al &&
+              echo '== Docker Compose Pull ==' &&
               docker compose pull &&
+              echo '== Docker Compose Up ==' &&
               docker compose up -d &&
+              echo '== Docker Prune ==' &&
               docker system prune -f
             "
