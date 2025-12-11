@@ -13,11 +13,12 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+
       - name: Checkout repository
         uses: actions/checkout@v3
 
       # ---------------------------
-      # Detect Branch → Set TAG & Deploy Dir
+      # Detect Branch → TAG / DEPLOY_DIR
       # ---------------------------
       - name: Set deployment variables
         run: |
@@ -39,8 +40,8 @@ jobs:
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       # ---------------------------
-      # Build image (IMPORTANT)
-      # NEXT_PUBLIC_APP_ENV is injected here!
+      # Build & Tag Docker Image
+      # NEXT_PUBLIC_APP_ENV is injected here
       # ---------------------------
       - name: Build Docker image
         run: |
@@ -49,7 +50,7 @@ jobs:
             -t $REGISTRY/$IMAGE_NAME:${TAG} .
 
       # ---------------------------
-      # Push image
+      # Push Docker Image
       # ---------------------------
       - name: Push Docker image
         run: |
@@ -65,16 +66,7 @@ jobs:
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_KEY }}
           script: |
-            bash -lc "
-              echo '== SSH Connected =='
-              cd ~/Osmity/${{ env.DEPLOY_DIR }} &&
-              echo '== Current directory ==' &&
-              pwd &&
-              ls -al &&
-              echo '== Docker Compose Pull ==' &&
-              docker compose pull &&
-              echo '== Docker Compose Up ==' &&
-              docker compose up -d &&
-              echo '== Docker Prune ==' &&
-              docker system prune -f
-            "
+            cd ~/Osmity/${{ env.DEPLOY_DIR }}
+            docker compose pull
+            docker compose up -d
+            docker system prune -f
