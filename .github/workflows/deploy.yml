@@ -65,12 +65,11 @@ jobs:
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_KEY }}
           script: |
-            whoami
-            pwd
-            ls -al
-            cd ~/Osmity/${DEPLOY_DIR}
-            pwd
-            ls -al
-            docker compose pull
-            docker compose up -d
-            docker system prune -f
+            bash -lc "
+              cd ~/Osmity/${DEPLOY_DIR} &&
+              pwd &&
+              ls -al &&
+              docker compose pull &&
+              docker compose up -d &&
+              docker system prune -f
+            "
