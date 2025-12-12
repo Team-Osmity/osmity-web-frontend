@@ -1,0 +1,29 @@
+# ------------------------------
+# 1. Build Stage (DEV)
+# ------------------------------
+FROM node:20-alpine AS builder
+WORKDIR /app
+
+# dev 固定
+ARG NEXT_PUBLIC_APP_ENV=dev
+ENV NEXT_PUBLIC_APP_ENV=${NEXT_PUBLIC_APP_ENV}
+
+COPY package*.json ./
+RUN npm install
+
+COPY . .
+RUN npm run build:dev
+
+# ------------------------------
+# 2. Run Stage
+# ------------------------------
+FROM node:20-alpine AS runner
+WORKDIR /app
+ENV NODE_ENV=production
+
+COPY --from=builder /app/.next/standalone ./standalone
+COPY --from=builder /app/.next/static ./public/_next/static
+COPY --from=builder /app/public ./public
+
+EXPOSE 3001
+CMD ["node", "standalone/server.js"]

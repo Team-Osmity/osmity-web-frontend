@@ -5,6 +5,8 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
+    "build:dev": "NEXT_PUBLIC_APP_ENV=dev next build --no-lint",
+    "build:prod": "NEXT_PUBLIC_APP_ENV=prod next build",
     "start": "next start",
     "lint": "eslint"
   },

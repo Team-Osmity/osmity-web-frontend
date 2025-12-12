@@ -1,18 +1,16 @@
 # ------------------------------
-# 1. Build Stage
+# 1. Build Stage (PROD)
 # ------------------------------
 FROM node:20-alpine AS builder
 WORKDIR /app
 
-# Build-time argument: dev/prod をここで受け取る
-ARG NEXT_PUBLIC_APP_ENV
+ARG NEXT_PUBLIC_APP_ENV=prod
 ENV NEXT_PUBLIC_APP_ENV=${NEXT_PUBLIC_APP_ENV}
 
 COPY package*.json ./
-RUN npm install
+RUN npm ci
 
 COPY . .
-
 RUN npm run build
 
 # ------------------------------
@@ -27,5 +25,4 @@ COPY --from=builder /app/.next/static ./public/_next/static
 COPY --from=builder /app/public ./public
 
 EXPOSE 3000
-
 CMD ["node", "standalone/server.js"]
