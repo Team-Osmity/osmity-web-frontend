@@ -13,21 +13,25 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-
+      # ---------------------------
+      # Checkout
+      # ---------------------------
       - name: Checkout repository
         uses: actions/checkout@v3
 
       # ---------------------------
-      # Detect Branch → TAG / DEPLOY_DIR
+      # Detect branch → TAG / DEPLOY_DIR / ENV
       # ---------------------------
       - name: Set deployment variables
         run: |
           if [ "${GITHUB_REF##*/}" = "prod" ]; then
             echo "TAG=prod" >> $GITHUB_ENV
             echo "DEPLOY_DIR=prod" >> $GITHUB_ENV
+            echo "APP_ENV=prod" >> $GITHUB_ENV
           else
             echo "TAG=dev" >> $GITHUB_ENV
             echo "DEPLOY_DIR=dev" >> $GITHUB_ENV
+            echo "APP_ENV=dev" >> $GITHUB_ENV
           fi
 
       # ---------------------------
@@ -40,16 +44,14 @@ jobs:
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       # ---------------------------
-      # Build & Tag Docker Image
-      # NEXT_PUBLIC_APP_ENV is injected here
+      # Build Docker Image (env is baked at build time)
       # ---------------------------
       - name: Build Docker image
         run: |
-          if [ "$TAG" = "prod" ]; then
-            docker build -f Dockerfile.prod -t $REGISTRY/$IMAGE_NAME:prod .
-          else
-            docker build -f Dockerfile.dev -t $REGISTRY/$IMAGE_NAME:dev .
-          fi
+          docker build \
+            --build-arg NEXT_PUBLIC_APP_ENV=${APP_ENV} \
+            --build-arg API_BASE_URL=http://backend:8080 \
+            -t $REGISTRY/$IMAGE_NAME:${TAG} .
 
       # ---------------------------
       # Push Docker Image
@@ -72,4 +74,3 @@ jobs:
             docker compose pull
             docker compose down
             docker compose up -d --force-recreate
-            docker system prune -f
