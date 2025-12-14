@@ -1,0 +1,28 @@
+name: Deploy Frontend (prod)
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+
+env:
+  IMAGE_NAME: osmity/osmity-web-frontend
+  DEPLOY_DIR: prod
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Deploy tagged version
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_KEY }}
+          script: |
+            export APP_VERSION=${GITHUB_REF_NAME}
+            cd ~/Osmity/prod
+            docker compose pull
+            docker compose up -d
+            docker system prune -f

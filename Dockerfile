@@ -1,28 +1,30 @@
 FROM node:20-alpine AS builder
 WORKDIR /app
 
-ARG NEXT_PUBLIC_APP_ENV
-ARG NEXT_PUBLIC_COMMIT_SHA
+ARG APP_ENV
+ARG APP_VERSION
+ARG BUILD_TIME
+ARG GIT_COMMIT
 
-ENV NEXT_PUBLIC_APP_ENV=$NEXT_PUBLIC_APP_ENV
-ENV NEXT_PUBLIC_COMMIT_SHA=$NEXT_PUBLIC_COMMIT_SHA
+ENV NEXT_PUBLIC_APP_ENV=${APP_ENV}
+ENV NEXT_PUBLIC_APP_VERSION=${APP_VERSION}
+ENV NEXT_PUBLIC_BUILD_TIME=${BUILD_TIME}
+ENV NEXT_PUBLIC_GIT_COMMIT=${GIT_COMMIT}
 
 COPY package*.json ./
 RUN npm install
+
 COPY . .
-
-# ★ 一時的に強制差分を作る
-RUN echo "BUILD FROM CI $(date)" > BUILD_MARK.txt
-
 RUN npm run build
 
 FROM node:20-alpine
 WORKDIR /app
 
+ENV NODE_ENV=production
+
 COPY --from=builder /app/.next/standalone ./standalone
 COPY --from=builder /app/.next/static ./public/_next/static
 COPY --from=builder /app/public ./public
-COPY --from=builder /app/BUILD_MARK.txt ./BUILD_MARK.txt
 
 EXPOSE 3000
 CMD ["node", "standalone/server.js"]
