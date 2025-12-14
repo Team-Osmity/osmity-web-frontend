@@ -9,10 +9,6 @@ export default async function Home() {
 
   const appEnv = process.env.NEXT_PUBLIC_APP_ENV;
 
-  const isDev = appEnv === "dev";
-  const isProd = appEnv === "prod";
-  const isMissing = appEnv === undefined;
-
   let message = "Hello from Local!";
   if (host.includes("osmity")) {
     message = "Hello Osmity!";
@@ -21,31 +17,7 @@ export default async function Home() {
   }
 
   return (
-    <main style={{ padding: 24 }}>
-      {isDev && (
-        <div style={{
-          background: "red",
-          color: "white",
-          padding: "8px",
-          marginBottom: "16px",
-          borderRadius: "4px",
-        }}>
-          現在は開発環境（DEV）です
-        </div>
-      )}
-
-      {isMissing && (
-        <div style={{
-          background: "orange",
-          color: "black",
-          padding: "8px",
-          marginBottom: "16px",
-          borderRadius: "4px",
-        }}>
-          NEXT_PUBLIC_APP_ENV が読み込まれていません！
-        </div>
-      )}
-
+    <main>
       <h1>Hello World!!!</h1>
       <h1>{message}</h1>
 
