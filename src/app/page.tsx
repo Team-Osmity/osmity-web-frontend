@@ -20,6 +20,7 @@ export default async function Home() {
       <h1>{message}</h1>
 
       <p>Host: {host}</p>
+      <p>ページを更新しました！！！</p>
     </main>
   );
 }
