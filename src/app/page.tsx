@@ -1,13 +1,13 @@
 export const dynamic = "force-dynamic";
-// export const revalidate = 0;
 
 import { headers } from "next/headers";
 
 export default async function Home() {
   const h = await headers();
-  const host =  h.get("host") ?? "";
+  const host = h.get("host") ?? "";
 
   const appEnv = process.env.NEXT_PUBLIC_APP_ENV ?? "unknown";
+  const commit = process.env.NEXT_PUBLIC_COMMIT_SHA ?? "";
 
   let message = "Hello from Local!";
   if (host.includes("osmity")) {
@@ -23,28 +23,12 @@ export default async function Home() {
 
       <hr />
 
-      <p>
-        <strong>Host:</strong> {host}
-      </p>
+      <p><strong>Host:</strong> {host}</p>
+      <p><strong>APP_ENV:</strong> {appEnv}</p>
 
-      <p>
-        <strong>APP_ENV:</strong>{" "}
-        <span
-          style={{
-            padding: "2px 6px",
-            borderRadius: 4,
-            background: appEnv === "prod" ? "#ddd" : "#c0392b",
-            color: appEnv === "prod" ? "#333" : "#fff",
-            fontWeight: "bold",
-          }}
-        >
-          {appEnv}
-        </span>
-      </p>
-
-      {appEnv !== "prod" && (
+      {appEnv === "dev" && (
         <p style={{ color: "#c0392b", fontWeight: "bold" }}>
-          ⚠ This is NOT production environment
+          commit: {commit}
         </p>
       )}
 

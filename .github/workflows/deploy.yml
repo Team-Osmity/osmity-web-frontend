@@ -35,6 +35,7 @@ jobs:
           docker build \
             --no-cache \
             --build-arg NEXT_PUBLIC_APP_ENV=${TAG} \
+            --build-arg NEXT_PUBLIC_COMMIT_SHA=${GITHUB_SHA::7} \
             -t $IMAGE_NAME:${TAG} .
 
       - name: Push image
