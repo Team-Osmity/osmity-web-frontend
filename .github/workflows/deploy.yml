@@ -32,7 +32,10 @@ jobs:
 
       - name: Build image
         run: |
-          docker build --no-cache -t $IMAGE_NAME:${TAG} .
+          docker build \
+            --no-cache \
+            --build-arg NEXT_PUBLIC_APP_ENV=${TAG} \
+            -t $IMAGE_NAME:${TAG} .
 
       - name: Push image
         run: |
