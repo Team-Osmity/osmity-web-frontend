@@ -12,19 +12,19 @@ ENV NEXT_PUBLIC_BUILD_TIME=${BUILD_TIME}
 ENV NEXT_PUBLIC_COMMIT_SHA=${GIT_COMMIT}
 
 COPY package*.json ./
-RUN npm install
+RUN npm ci
 
 COPY . .
 RUN npm run build
 
-FROM node:20-alpine
+FROM node:20-alpine AS runner
 WORKDIR /app
 
 ENV NODE_ENV=production
 
-COPY --from=builder /app/.next/standalone ./standalone
-COPY --from=builder /app/.next/static ./public/_next/static
+COPY --from=builder /app/.next/standalone ./
+COPY --from=builder /app/.next/static ./.next/static
 COPY --from=builder /app/public ./public
 
 EXPOSE 3000
-CMD ["node", "standalone/server.js"]
+CMD ["node", "server.js"]
