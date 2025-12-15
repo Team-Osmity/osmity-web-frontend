@@ -5,24 +5,26 @@ on:
     tags:
       - 'v*.*.*'
 
-env:
-  IMAGE_NAME: osmity/osmity-web-frontend
-  DEPLOY_DIR: prod
-
 jobs:
   deploy:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Deploy tagged version
+      - name: Deploy tagged frontend
         uses: appleboy/ssh-action@v1.0.3
+        env:
+          APP_VERSION: ${{ github.ref_name }}
         with:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_KEY }}
+          envs: APP_VERSION
           script: |
-            export APP_VERSION=${GITHUB_REF_NAME}
             cd ~/Osmity/prod
-            docker compose pull
-            docker compose up -d
+
+            echo "APP_VERSION=${APP_VERSION}" > .env
+            echo "Deploying frontend version: ${APP_VERSION}"
+
+            docker compose pull frontend
+            docker compose up -d frontend
             docker system prune -f
