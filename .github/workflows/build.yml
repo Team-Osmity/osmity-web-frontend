@@ -21,7 +21,8 @@ jobs:
       - name: Fetch tags
         run: git fetch --tags
 
-      - name: Determine next version
+      - name: Determine next frontend version
+        shell: bash
         run: |
           LATEST_TAG=$(git tag --sort=-v:refname | head -n 1)
           if [ -z "$LATEST_TAG" ]; then
@@ -46,12 +47,12 @@ jobs:
             PATCH=$((PATCH+1))
           fi
 
-          echo "APP_VERSION=v$MAJOR.$MINOR.$PATCH" >> $GITHUB_ENV
+          echo "FRONT_VERSION=v$MAJOR.$MINOR.$PATCH" >> $GITHUB_ENV
 
-      - name: Set build metadata
+      - name: Set frontend build metadata
         run: |
-          echo "BUILD_TIME=$(date -u +'%Y-%m-%dT%H:%M:%SZ')" >> $GITHUB_ENV
-          echo "GIT_COMMIT=$(git rev-parse --short HEAD)" >> $GITHUB_ENV
+          echo "FRONT_BUILD_TIME=$(date -u +'%Y-%m-%dT%H:%M:%SZ')" >> $GITHUB_ENV
+          echo "FRONT_COMMIT_SHA=$(git rev-parse --short HEAD)" >> $GITHUB_ENV
 
       - name: Login to Docker Hub
         uses: docker/login-action@v3
@@ -59,13 +60,14 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      - name: Build & push prod candidate image
+      - name: Build & push frontend image
         run: |
           docker build \
             --no-cache \
             --build-arg APP_ENV=prod \
-            --build-arg APP_VERSION=${APP_VERSION} \
-            --build-arg BUILD_TIME=${BUILD_TIME} \
-            --build-arg GIT_COMMIT=${GIT_COMMIT} \
-            -t $IMAGE_NAME:${APP_VERSION} .
-          docker push $IMAGE_NAME:${APP_VERSION}
+            --build-arg FRONT_VERSION=${FRONT_VERSION} \
+            --build-arg FRONT_BUILD_TIME=${FRONT_BUILD_TIME} \
+            --build-arg FRONT_COMMIT_SHA=${FRONT_COMMIT_SHA} \
+            -t $IMAGE_NAME:${FRONT_VERSION} .
+
+          docker push $IMAGE_NAME:${FRONT_VERSION}
