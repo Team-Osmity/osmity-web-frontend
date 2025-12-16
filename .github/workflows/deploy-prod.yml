@@ -21,8 +21,8 @@ jobs:
           envs: FRONT_VERSION
           script: |
             cd ~/Osmity/prod
-            echo "FRONT_VERSION=${FRONT_VERSION}" > .env
+            echo "FRONT_VERSION=${FRONT_VERSION}" > .env.fonrt
             echo "Deploying frontend version: ${FRONT_VERSION}"
             docker compose pull frontend
-            docker compose up -d frontend
+            docker compose --env-file .env.front up -d frontend
             docker system prune -f
