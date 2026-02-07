@@ -1,0 +1,158 @@
+.page {
+  display: grid;
+  grid-template-columns: 260px minmax(0, 1fr);
+  gap: 32px;
+  padding: 32px;
+  min-height: 100vh;
+  background: #f7f7f9;
+}
+
+.sidebar {
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 20px;
+  position: sticky;
+  top: 24px;
+  height: fit-content;
+}
+
+.sidebar h2 {
+  font-size: 14px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #6b7280;
+  margin-bottom: 12px;
+}
+
+.navList {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.navItem a {
+  color: #1f2937;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.navItem a:hover {
+  color: #2563eb;
+}
+
+.breadcrumbs {
+  font-size: 13px;
+  color: #6b7280;
+  margin-bottom: 16px;
+}
+
+.content {
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 16px;
+  padding: 32px;
+  box-shadow: 0 6px 18px rgba(15, 23, 42, 0.04);
+}
+
+.markdown {
+  color: #111827;
+  line-height: 1.7;
+}
+
+.markdown h1,
+.markdown h2,
+.markdown h3,
+.markdown h4 {
+  font-weight: 700;
+  margin-top: 32px;
+  margin-bottom: 12px;
+}
+
+.markdown h1 {
+  font-size: 30px;
+}
+
+.markdown h2 {
+  font-size: 22px;
+}
+
+.markdown h3 {
+  font-size: 18px;
+}
+
+.markdown p {
+  margin: 12px 0;
+}
+
+.markdown ul,
+.markdown ol {
+  padding-left: 24px;
+  margin: 12px 0;
+}
+
+.markdown blockquote {
+  margin: 16px 0;
+  padding: 12px 16px;
+  border-left: 4px solid #3b82f6;
+  background: #eff6ff;
+  color: #1e3a8a;
+}
+
+.markdown code {
+  background: #f3f4f6;
+  padding: 2px 6px;
+  border-radius: 6px;
+  font-size: 0.9em;
+}
+
+.markdown pre {
+  background: #111827;
+  color: #f9fafb;
+  padding: 16px;
+  border-radius: 10px;
+  overflow-x: auto;
+}
+
+.markdown pre code {
+  background: transparent;
+  padding: 0;
+}
+
+.directoryList {
+  list-style: none;
+  padding: 0;
+  margin: 16px 0 0;
+  display: grid;
+  gap: 12px;
+}
+
+.directoryList li {
+  padding: 12px 16px;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  background: #f9fafb;
+}
+
+.directoryList a {
+  text-decoration: none;
+  color: #111827;
+  font-weight: 600;
+}
+
+.directoryList a:hover {
+  color: #2563eb;
+}
+
+@media (max-width: 960px) {
+  .page {
+    grid-template-columns: 1fr;
+  }
+
+  .sidebar {
+    position: static;
+  }
+}
