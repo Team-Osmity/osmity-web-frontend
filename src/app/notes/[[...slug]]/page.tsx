@@ -1,5 +1,6 @@
 import fs from "node:fs/promises";
 import path from "node:path";
+import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
@@ -232,6 +233,22 @@ const readMarkdownFile = async (segments: string[]) => {
   return renderMarkdown(contents, baseSegments);
 };
 
+const extractTitle = (markdown: string) => {
+  for (const line of markdown.split("\n")) {
+    const match = line.match(/^#\s+(.*)$/);
+    if (match) {
+      return match[1].trim();
+    }
+  }
+  return null;
+};
+
+const readMarkdownTitle = async (segments: string[]) => {
+  const filePath = path.join(CONTENT_ROOT, ...segments);
+  const contents = await fs.readFile(filePath, "utf8");
+  return extractTitle(contents);
+};
+
 const resolvePath = async (segments: string[]) => {
   const normalized = path.normalize(path.join(CONTENT_ROOT, ...segments));
   if (!normalized.startsWith(CONTENT_ROOT)) {
@@ -259,6 +276,32 @@ const resolvePath = async (segments: string[]) => {
   }
 
   return null;
+};
+
+export const generateMetadata = async ({ params }: PageProps): Promise<Metadata> => {
+  const { slug } = await params;
+  const segments = slug ?? [];
+  const resolved = await resolvePath(segments);
+
+  if (!resolved) {
+    return {};
+  }
+
+  const fallbackTitle = segments.at(-1) ?? "Notes";
+
+  if (resolved.type === "file") {
+    const title = await readMarkdownTitle(resolved.segments);
+    return { title: title ?? fallbackTitle };
+  }
+
+  const directorySegments = segments;
+  const indexFilePath = path.join(CONTENT_ROOT, ...directorySegments, "README.md");
+  const indexTitle = await fs
+    .stat(indexFilePath)
+    .then((stat) => (stat.isFile() ? readMarkdownTitle([...directorySegments, "README.md"]) : null))
+    .catch(() => null);
+
+  return { title: indexTitle ?? fallbackTitle };
 };
 
 export default async function NotesPage({ params }: PageProps) {
