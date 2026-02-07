@@ -2,7 +2,7 @@ import fs from "node:fs/promises";
 import path from "node:path";
 import type { Metadata } from "next";
 import Link from "next/link";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 
 import styles from "../notes.module.css";
 
@@ -205,6 +205,9 @@ const getDirectoryEntries = async (segments: string[]) => {
       }
 
       if (entry.isFile() && entry.name.endsWith(".md")) {
+        if (entry.name.toLowerCase() === "readme.md") {
+          return null;
+        }
         return {
           name: toDisplayName(entry.name),
           href: toHref([...segments, entry.name.replace(/\.md$/, "")]),
@@ -311,6 +314,12 @@ export default async function NotesPage({ params }: PageProps) {
 
   if (!resolved) {
     notFound();
+  }
+
+  if (resolved.type === "file" && resolved.segments.at(-1)?.toLowerCase() === "readme.md") {
+    const parentSegments = segments.slice(0, -1);
+    const destination = parentSegments.length === 0 ? "/notes" : `/notes/${parentSegments.join("/")}`;
+    redirect(destination);
   }
 
   const breadcrumbs = buildBreadcrumbs(segments);
