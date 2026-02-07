@@ -36,6 +36,9 @@ export default async function Home() {
         )}
 
         <p>ページを更新しました！！！</p>
+        <p>
+          <a href="/notes">Markdown ブログ一覧へ</a>
+        </p>
       </div>
 
       {/* Footer */}
