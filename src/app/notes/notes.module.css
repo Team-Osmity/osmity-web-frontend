@@ -3,18 +3,19 @@
   grid-template-columns: 260px minmax(0, 1fr);
   gap: 32px;
   padding: 32px;
-  min-height: 100vh;
-  background: #f7f7f9;
+  min-height: calc(100vh - 64px);
+  background: linear-gradient(180deg, #ffffff 0%, #f0f9ff 100%);
 }
 
 .sidebar {
-  background: #fff;
-  border: 1px solid #e5e7eb;
+  background: #ffffff;
+  border: 1px solid #dbeafe;
   border-radius: 12px;
   padding: 20px;
   position: sticky;
   top: 24px;
   height: fit-content;
+  box-shadow: 0 8px 20px rgba(14, 116, 144, 0.08);
 }
 
 .sidebar h2 {
@@ -35,13 +36,13 @@
 }
 
 .navItem a {
-  color: #1f2937;
+  color: #0f172a;
   text-decoration: none;
   font-weight: 500;
 }
 
 .navItem a:hover {
-  color: #2563eb;
+  color: #0284c7;
 }
 
 .breadcrumbs {
@@ -51,11 +52,11 @@
 }
 
 .content {
-  background: #fff;
-  border: 1px solid #e5e7eb;
+  background: #ffffff;
+  border: 1px solid #dbeafe;
   border-radius: 16px;
   padding: 32px;
-  box-shadow: 0 6px 18px rgba(15, 23, 42, 0.04);
+  box-shadow: 0 12px 30px rgba(14, 116, 144, 0.08);
 }
 
 .markdown {
@@ -97,9 +98,9 @@
 .markdown blockquote {
   margin: 16px 0;
   padding: 12px 16px;
-  border-left: 4px solid #3b82f6;
-  background: #eff6ff;
-  color: #1e3a8a;
+  border-left: 4px solid #38bdf8;
+  background: #e0f2fe;
+  color: #0f172a;
 }
 
 .markdown code {
@@ -132,19 +133,19 @@
 
 .directoryList li {
   padding: 12px 16px;
-  border: 1px solid #e5e7eb;
+  border: 1px solid #bae6fd;
   border-radius: 10px;
-  background: #f9fafb;
+  background: #f0f9ff;
 }
 
 .directoryList a {
   text-decoration: none;
-  color: #111827;
+  color: #0f172a;
   font-weight: 600;
 }
 
 .directoryList a:hover {
-  color: #2563eb;
+  color: #0284c7;
 }
 
 @media (max-width: 960px) {

@@ -25,16 +25,58 @@ const escapeHtml = (value: string) =>
     .replaceAll("\"", "&quot;")
     .replaceAll("'", "&#39;");
 
-const renderInlineMarkdown = (value: string) => {
+const resolveMarkdownHref = (href: string, baseSegments: string[]) => {
+  if (/^(https?:|mailto:|tel:|#)/i.test(href)) {
+    return href;
+  }
+
+  if (href.startsWith("/")) {
+    return href;
+  }
+
+  const normalized = path.posix.normalize(path.posix.join(...baseSegments, href));
+  const parts = normalized.split("/").filter(Boolean);
+  const safeParts: string[] = [];
+  for (const part of parts) {
+    if (part === ".") {
+      continue;
+    }
+    if (part === "..") {
+      safeParts.pop();
+      continue;
+    }
+    safeParts.push(part);
+  }
+
+  if (safeParts.length === 0) {
+    return "/notes";
+  }
+
+  const lastIndex = safeParts.length - 1;
+  const normalizedLast = safeParts[lastIndex].replace(/\.md$/, "");
+  if (normalizedLast.toLowerCase() === "readme") {
+    if (safeParts.length === 1) {
+      return "/notes";
+    }
+    return `/notes/${safeParts.slice(0, -1).join("/")}`;
+  }
+  safeParts[lastIndex] = normalizedLast;
+  return `/notes/${safeParts.join("/")}`;
+};
+
+const renderInlineMarkdown = (value: string, baseSegments: string[]) => {
   let rendered = escapeHtml(value);
   rendered = rendered.replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>");
   rendered = rendered.replace(/\*(.+?)\*/g, "<em>$1</em>");
   rendered = rendered.replace(/`(.+?)`/g, "<code>$1</code>");
-  rendered = rendered.replace(/\[(.+?)\]\((.+?)\)/g, '<a href="$2">$1</a>');
+  rendered = rendered.replace(/\[(.+?)\]\((.+?)\)/g, (_match, label: string, href: string) => {
+    const resolvedHref = resolveMarkdownHref(href, baseSegments);
+    return `<a href="${resolvedHref}">${label}</a>`;
+  });
   return rendered;
 };
 
-const renderMarkdown = (markdown: string) => {
+const renderMarkdown = (markdown: string, baseSegments: string[]) => {
   const lines = markdown.split("\n");
   const blocks: string[] = [];
   let inCode = false;
@@ -45,18 +87,18 @@ const renderMarkdown = (markdown: string) => {
 
   const flushParagraph = () => {
     if (paragraphBuffer.length > 0) {
-      blocks.push(`<p>${renderInlineMarkdown(paragraphBuffer.join(" "))}</p>`);
+      blocks.push(`<p>${renderInlineMarkdown(paragraphBuffer.join(" "), baseSegments)}</p>`);
       paragraphBuffer = [];
     }
   };
 
   const flushList = () => {
     if (listBuffer.length > 0) {
-      blocks.push(`<ul>${listBuffer.map((item) => `<li>${renderInlineMarkdown(item)}</li>`).join("")}</ul>`);
+      blocks.push(`<ul>${listBuffer.map((item) => `<li>${renderInlineMarkdown(item, baseSegments)}</li>`).join("")}</ul>`);
       listBuffer = [];
     }
     if (orderedBuffer.length > 0) {
-      blocks.push(`<ol>${orderedBuffer.map((item) => `<li>${renderInlineMarkdown(item)}</li>`).join("")}</ol>`);
+      blocks.push(`<ol>${orderedBuffer.map((item) => `<li>${renderInlineMarkdown(item, baseSegments)}</li>`).join("")}</ol>`);
       orderedBuffer = [];
     }
   };
@@ -91,7 +133,7 @@ const renderMarkdown = (markdown: string) => {
       flushParagraph();
       flushList();
       const level = headingMatch[1].length;
-      blocks.push(`<h${level}>${renderInlineMarkdown(headingMatch[2])}</h${level}>`);
+      blocks.push(`<h${level}>${renderInlineMarkdown(headingMatch[2], baseSegments)}</h${level}>`);
       continue;
     }
 
@@ -99,7 +141,7 @@ const renderMarkdown = (markdown: string) => {
     if (blockquoteMatch) {
       flushParagraph();
       flushList();
-      blocks.push(`<blockquote>${renderInlineMarkdown(blockquoteMatch[1])}</blockquote>`);
+      blocks.push(`<blockquote>${renderInlineMarkdown(blockquoteMatch[1], baseSegments)}</blockquote>`);
       continue;
     }
 
@@ -186,7 +228,8 @@ const getDirectoryEntries = async (segments: string[]) => {
 const readMarkdownFile = async (segments: string[]) => {
   const filePath = path.join(CONTENT_ROOT, ...segments);
   const contents = await fs.readFile(filePath, "utf8");
-  return renderMarkdown(contents);
+  const baseSegments = segments.slice(0, -1);
+  return renderMarkdown(contents, baseSegments);
 };
 
 const resolvePath = async (segments: string[]) => {

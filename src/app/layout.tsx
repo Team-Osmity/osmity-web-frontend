@@ -27,7 +27,10 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        {children}
+        <div className="app-shell">
+          <header className="site-header">Kairo.ts</header>
+          <div className="site-content">{children}</div>
+        </div>
       </body>
     </html>
   );
